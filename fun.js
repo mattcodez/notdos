@@ -6,7 +6,7 @@ function init(){
   game(context);
 }
 
-function game(context){
+async function game(context){
   let imageData = context.getImageData(0, 0, 640, 480);
   let data = imageData.data;
   let buffer = data.buffer;
@@ -20,20 +20,15 @@ function game(context){
     data.set(newData8);
   }, 10);
 
-  function animationFrame() {
-    let resolve = null;
-    const promise = new Promise(r => resolve = r);
-    window.requestAnimationFrame(resolve);
-    return promise;
+  async function* run(path) {
+    while (true){
+      yield await (new Promise(r => window.requestAnimationFrame(r)));
+    }
   }
 
-  (async function game() {
-    // the game loop
-    while (true) {
-      await animationFrame();
-      context.putImageData(imageData, 0, 0);
-    }
-  })();
+  for await (const frame of run()){
+    context.putImageData(imageData, 0, 0);
+  }
 }
 
 const state = {line: 0};
