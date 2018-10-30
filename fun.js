@@ -18,8 +18,14 @@ function game(context){
   setInterval(()=>{
     gameLoop(newData8);
     data.set(newData8);
-    context.putImageData(imageData, 0, 0);
-  }, 10)
+  }, 10);
+
+  (function gameLoop(){
+    window.requestAnimationFrame(()=>{
+      context.putImageData(imageData, 0, 0);
+      gameLoop();
+    });
+  })();
 }
 
 const state = {line: 0};
