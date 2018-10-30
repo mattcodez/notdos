@@ -20,11 +20,19 @@ function game(context){
     data.set(newData8);
   }, 10);
 
-  (function gameLoop(){
-    window.requestAnimationFrame(()=>{
+  function animationFrame() {
+    let resolve = null;
+    const promise = new Promise(r => resolve = r);
+    window.requestAnimationFrame(resolve);
+    return promise;
+  }
+
+  (async function game() {
+    // the game loop
+    while (true) {
+      await animationFrame();
       context.putImageData(imageData, 0, 0);
-      gameLoop();
-    });
+    }
   })();
 }
 
