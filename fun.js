@@ -8,11 +8,11 @@ function init(){
 
 const SCREEN_W = 640,
       SCREEN_H = 480;
-
+let newData32;
 async function game(context){
   const newDataBuffer = new ArrayBuffer(SCREEN_W * SCREEN_H * 4);
   const newData8 = new Uint8ClampedArray(newDataBuffer);
-  const newData32 = new Uint32Array(newDataBuffer);
+  newData32 = new Uint32Array(newDataBuffer);
   const newImageData = new ImageData(newData8, SCREEN_W);
 
   // game tick
@@ -26,31 +26,33 @@ async function game(context){
   }
 }
 
+let current_pixel;
+function setPixel(color) {newData32[current_pixel] = color};
 function gameLoop(src32){
   // move line
   const line = state.line;
   state.line = line > SCREEN_W ? 0 : line + 1;
 
   // loop through every pixel in canvas
-  for (let i = 0; i < src32.length; i++){
-    drawBackground(i, src32);
-    drawMovingVerticalLine(i, line, src32);
-    drawMenu(i, src32);
+  for (current_pixel = 0; current_pixel < src32.length; current_pixel++){
+    drawBackground();
+    drawMovingVerticalLine(line);
+    drawMenu();
   }
 }
 
-function drawBackground(i, src32){
-  src32[i] = 0xFF0000FF;
+function drawBackground(){
+  setPixel(0xFF0000FF);
 }
 
-function drawMovingVerticalLine(i, line, src32){
-  if ((i % SCREEN_W) === line){
-    src32[i] = 0x000000FF;
+function drawMovingVerticalLine(line){
+  if ((current_pixel % SCREEN_W) === line){
+    setPixel(0x000000FF);
   }
 }
 
 const MENU_CONSTANTS = { /* when ready */ };
-function drawMenu(i, src32){
+function drawMenu(){
   if (!state.showMenu) return;
 
   const top = SCREEN_H / 4;
@@ -60,10 +62,9 @@ function drawMenu(i, src32){
   const start = lineByteStart + left;
   const stop = lineByteStart + left + SCREEN_W / 2;
   // top line
-  if (i >= start && i <= stop) {
-    src32[i] = 0x000000FF;
+  if (current_pixel >= start && current_pixel <= stop) {
+    setPixel(0x000000FF);
   }
-
 }
 
 const state = {line: 0, showMenu: true};
