@@ -35,7 +35,7 @@ function gameLoop(src32){
   for (let i = 0; i < src32.length; i++){
     drawBackground(i, src32);
     drawMovingVerticalLine(i, line, src32);
-    //drawMenu(i, src32);
+    drawMenu(i, src32);
   }
 }
 
@@ -50,16 +50,18 @@ function drawMovingVerticalLine(i, line, src32){
 }
 
 const MENU_CONSTANTS = { /* when ready */ };
-function drawMenu(i, src8){
+function drawMenu(i, src32){
   if (!state.showMenu) return;
 
   const top = SCREEN_H / 4;
   const left = SCREEN_W / 4;
 
-  const start = (top * SCREEN_W) + left;
+  const lineByteStart = top * SCREEN_W;
+  const start = lineByteStart + left;
+  const stop = lineByteStart + 320;
   // top line
   if (i >= start && i <= stop) {
-
+    src32[i] = 0x00FFFFFF;
   }
 
 }
