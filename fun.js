@@ -6,66 +6,76 @@ function init(){
   game(context);
 }
 
-async function game(context){
-  let imageData = context.getImageData(0, 0, 640, 480);
-  let data = imageData.data;
-  let buffer = data.buffer;
-  let data8 = new Uint8Array(buffer); //Per-color access
+const SCREEN_W = 640,
+      SCREEN_H = 480;
 
-  let newDataBuffer = new ArrayBuffer(data.length);
-  let newData8 = new Uint8ClampedArray(newDataBuffer);
+async function game(context){
+  const newDataBuffer = new ArrayBuffer(SCREEN_W * SCREEN_H * 4);
+  const newData8 = new Uint8ClampedArray(newDataBuffer);
+  const newData32 = new Uint32Array(newDataBuffer);
+  const newImageData = new ImageData(newData8, SCREEN_W);
 
   // game tick
   setInterval(()=>{
-    gameLoop(newData8);
-    data.set(newData8);
+    gameLoop(newData32);
   }, 10);
 
   // render tick
   for await (const frame of getFrame()) {
-    context.putImageData(imageData, 0, 0);
+    context.putImageData(newImageData, 0, 0);
   }
 }
 
-function gameLoop(src8){
+function gameLoop(src32){
   // move line
   const line = state.line;
-  state.line = line > 640 ? 0 : line + 1;
+  state.line = line > SCREEN_W ? 0 : line + 1;
 
-  for (let i = 0; i < src8.length; i+=4){
-    drawBackground(i, src8);
-    drawVerticalLine(i, line, src8);
+  // loop through every pixel in canvas
+  for (let i = 0; i < src32.length; i++){
+    drawBackground(i, src32);
+    drawMovingVerticalLine(i, line, src32);
+    //drawMenu(i, src32);
   }
 }
 
-function drawBackground(i, src8){
-  src8[i] = 0xFF;
-  src8[i+1] = 0;
-  src8[i+2] = 0;
-  src8[i+3] = 0xFF;
+function drawBackground(i, src32){
+  src32[i] = 0xFF0000FF;
 }
 
-function drawVerticalLine(i, line, src8){
-  if ((i/4 % 640) === line){
-    src8[i] = 0;
-    src8[i+1] = 0;
-    src8[i+2] = 0;
-    src8[i+3] = 0xFF;
+function drawMovingVerticalLine(i, line, src32){
+  if ((i % SCREEN_W) === line){
+    src32[i] = 0x000000FF;
   }
 }
 
-const state = {line: 0, menu: true};
+const MENU_CONSTANTS = { /* when ready */ };
+function drawMenu(i, src8){
+  if (!state.showMenu) return;
+
+  const top = SCREEN_H / 4;
+  const left = SCREEN_W / 4;
+
+  const start = (top * SCREEN_W) + left;
+  // top line
+  if (i >= start && i <= stop) {
+
+  }
+
+}
+
+const state = {line: 0, showMenu: true};
 
 const menu = {
   options: [
-    {id: 1, name:"New Game"},
-    {id: 1, name:"Quit"}
+    {id: 1, name: "New Game"},
+    {id: 1, name: "Quit"}
   ]
 };
 
-async function* getFrame(path) {
+function* getFrame(path) {
   while (true){
-    yield await (new Promise(r => window.requestAnimationFrame(r)));
+    yield (new Promise(r => window.requestAnimationFrame(r)));
   }
 }
 
