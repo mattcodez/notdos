@@ -58,10 +58,10 @@ function drawMenu(i, src32){
 
   const lineByteStart = top * SCREEN_W;
   const start = lineByteStart + left;
-  const stop = lineByteStart + 320;
+  const stop = lineByteStart + left + SCREEN_W / 2;
   // top line
   if (i >= start && i <= stop) {
-    src32[i] = 0x00FFFFFF;
+    src32[i] = 0x000000FF;
   }
 
 }
