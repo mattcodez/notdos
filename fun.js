@@ -30,11 +30,17 @@ async function game(context){
   }
 }
 
-let current_pixel, current_x, current_y;
-function pick(next, old) {
-  if (next === null) return old;
-  return next;
+function lastValid(){
+  let last;
+  for (let i = 0; i < arguments.length; i++){
+    let arg = arguments[i];
+    if (arg === null || arg === undefined) continue;
+    else last = arg;
+  }
+  return last;
 }
+
+let current_pixel, current_x, current_y;
 function gameLoop(src32){
   // move line
   const line = state.line;
@@ -44,10 +50,14 @@ function gameLoop(src32){
   current_x = 0;
   current_y = 0;
   for (current_pixel = 0; current_pixel < src32.length; current_pixel++){
-    let newPixel = drawBackground();
-    newPixel = pick(drawMovingVerticalLine(line), newPixel);
-    newPixel = pick(drawMenu(), newPixel);
-    newPixel = pick(drawLine(100, 100, 300, 300), newPixel);
+    let newPixel = lastValid(
+      drawBackground(),
+      drawMovingVerticalLine(line),
+      drawMenu(),
+      drawLine(100, 100, 300, 300),
+      drawLine(600, 10, 550, 40),
+      drawBox(20, 20, 120, 20)
+    );
     src32[current_pixel] = newPixel;
 
     if (current_x === SCREEN_W){
@@ -93,13 +103,22 @@ function drawLine(x, y, dx, dy) {
   const b = y - (m * x);
 
   const isOnLine = (
-    current_x >= x && current_x <= dx &&
-    current_y >= y && current_y <= dy &&
+    current_x >= Math.min(x,dx) && current_x <= Math.max(dx,x) &&
+    current_y >= Math.min(y,dy) && current_y <= Math.max(dy,y) &&
     (m*current_x + b) === current_y
   );
   if (isOnLine) return GREEN;
 
   return null;
+}
+
+function drawBox(x, y, width, height) {
+  return lastValid(
+    drawLine(x, y, x + width, y),
+    drawLine(x, y + height, x + width, y + height),
+    drawLine(x, y, x + height, y),
+    drawLine(x + width, y, x + width, y + height)
+  );
 }
 
 const state = {line: 0, showMenu: true};
