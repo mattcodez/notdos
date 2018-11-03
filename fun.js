@@ -7,7 +7,10 @@ function init(){
 }
 
 const SCREEN_W = 640,
-      SCREEN_H = 480;
+      SCREEN_H = 480,
+      RED = 0xFF0000FF,
+      GREEN = 0x00FF00FF,
+      BLACK = 0x000000FF;
 
 async function game(context){
   const newDataBuffer = new ArrayBuffer(SCREEN_W * SCREEN_H * 4);
@@ -26,7 +29,7 @@ async function game(context){
   }
 }
 
-let current_pixel;
+let current_pixel, current_x, current_y;
 function pick(next, old) {
   if (next === null) return old;
   return next;
@@ -37,21 +40,31 @@ function gameLoop(src32){
   state.line = line > SCREEN_W ? 0 : line + 1;
 
   // loop through every pixel in canvas
+  current_x = 0;
+  current_y = 0;
   for (current_pixel = 0; current_pixel < src32.length; current_pixel++){
     let newPixel = drawBackground();
     newPixel = pick(drawMovingVerticalLine(line), newPixel);
     newPixel = pick(drawMenu(), newPixel);
+    newPixel = pick(drawLine(100, 100, 300, 300), newPixel);
     src32[current_pixel] = newPixel;
+
+    if (current_x === SCREEN_W){
+      current_x = 0;
+      current_y++;
+    } else {
+      current_x++;
+    }
   }
 }
 
 function drawBackground(){
-  return 0xFF0000FF;
+  return RED;
 }
 
-function drawMovingVerticalLine(line){
-  if ((current_pixel % SCREEN_W) === line){
-    return 0x000000FF;
+function drawMovingVerticalLine(lineLocation){
+  if ((current_pixel % SCREEN_W) === lineLocation){
+    return BLACK;
   }
   return null;
 }
@@ -68,8 +81,22 @@ function drawMenu(){
   const stop = lineByteStart + left + SCREEN_W / 2;
   // top line
   if (current_pixel >= start && current_pixel <= stop) {
-    return 0x000000FF;
+    return BLACK;
   }
+
+  return null;
+}
+
+function drawLine(x, y, dx, dy) {
+  const m = (dy - y) / (dx - x);
+  const b = y - (m * x);
+
+  const isOnLine = (
+    current_x >= x && current_x <= dx &&
+    current_y >= y && current_y <= dy &&
+    (m*current_x + b) === current_y
+  );
+  if (isOnLine) return GREEN;
 
   return null;
 }
