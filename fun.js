@@ -9,8 +9,9 @@ function init(){
 const SCREEN_W = 640,
       SCREEN_H = 480,
       RED = 0xFF0000FF,
-      GREEN = 0x00FF00FF,
-      BLACK = 0x000000FF;
+      GREEN = 0xFF00FF00,
+      BLUE = 0xFFFF0000,
+      BLACK = 0xFF000000;
 
 async function game(context){
   const newDataBuffer = new ArrayBuffer(SCREEN_W * SCREEN_H * 4);
