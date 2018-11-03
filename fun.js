@@ -98,13 +98,27 @@ function drawMenu(){
   return null;
 }
 
+const memoizeLine = {};
 function drawLine(x, y, dx, dy) {
-  const m = (dy - y) / (dx - x);
-  const b = y - (m * x);
+  const prop = `${x}_${y}_${dx}_${dy}`;
+  const vals = memoizeLine[prop];
+  let m,b,minX,maxX,minY,maxY;
+  if (vals) {
+    ({m,b,minX,maxX,minY,maxY} = vals);
+  }
+  else {
+    m = (dy - y) / (dx - x);
+    b = y - (m * x);
+    minX = Math.min(x,dx);
+    maxX = Math.max(x,dx);
+    minY = Math.min(y,dy);
+    maxY = Math.max(y,dy);
+    memoizeLine[prop] = {m,b,minX,maxX,minY,maxY};
+  }
 
   const isOnLine = (
-    current_x >= Math.min(x,dx) && current_x <= Math.max(dx,x) &&
-    current_y >= Math.min(y,dy) && current_y <= Math.max(dy,y) &&
+    current_x >= minX && current_x <= maxX &&
+    current_y >= minY && current_y <= maxY &&
     (m*current_x + b) === current_y
   );
   if (isOnLine) return GREEN;
