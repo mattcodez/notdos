@@ -40,31 +40,31 @@ function lastValid(){
   return last;
 }
 
-let current_pixel, current_x, current_y;
+let current_pixel, g_current_x, g_current_y;
 function gameLoop(src32){
   // move line
   const line = state.line;
   state.line = line > SCREEN_W ? 0 : line + 1;
 
   // loop through every pixel in canvas
-  current_x = 0;
-  current_y = 0;
+  g_current_x = 0;
+  g_current_y = 0;
   for (current_pixel = 0; current_pixel < src32.length; current_pixel++){
     let newPixel = lastValid(
       drawBackground(),
       drawMovingVerticalLine(line),
       drawMenu(),
       drawLine(100, 100, 300, 300),
-      drawLine(600, 10, 550, 40),
+      //drawLine(600, 10, 550, 320),
       drawBox(20, 20, 120, 20)
     );
     src32[current_pixel] = newPixel;
 
-    if (current_x === SCREEN_W){
-      current_x = 0;
-      current_y++;
+    if (g_current_x === SCREEN_W){
+      g_current_x = 0;
+      g_current_y++;
     } else {
-      current_x++;
+      g_current_x++;
     }
   }
 }
@@ -98,31 +98,23 @@ function drawMenu(){
   return null;
 }
 
-const memoizeLine = {};
 function drawLine(x, y, dx, dy) {
-  const prop = `${x}_${y}_${dx}_${dy}`;
-  const vals = memoizeLine[prop];
-  let m,b,minX,maxX,minY,maxY;
-  if (vals) {
-    ({m,b,minX,maxX,minY,maxY} = vals);
-  }
-  else {
-    m = (dy - y) / (dx - x);
-    b = y - (m * x);
-    minX = Math.min(x,dx);
-    maxX = Math.max(x,dx);
-    minY = Math.min(y,dy);
-    maxY = Math.max(y,dy);
-    memoizeLine[prop] = {m,b,minX,maxX,minY,maxY};
-  }
+  const m = (dy - y) / (dx - x),
+  b = y - (m * x),
+  minX = Math.min(x,dx),
+  maxX = Math.max(x,dx),
+  minY = Math.min(y,dy),
+  maxY = Math.max(y,dy);
+  return drawCalculatedLine(minX, maxX, minY, maxY, m, b);
+}
 
+function drawCalculatedLine(minX, maxX, minY, maxY, m, b){
   const isOnLine = (
-    current_x >= minX && current_x <= maxX &&
-    current_y >= minY && current_y <= maxY &&
-    (m*current_x + b) === current_y
+    g_current_x >= minX && g_current_x <= maxX &&
+    g_current_y >= minY && g_current_y <= maxY &&
+    (m*g_current_x + b) === g_current_y
   );
   if (isOnLine) return GREEN;
-
   return null;
 }
 
