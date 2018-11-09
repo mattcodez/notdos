@@ -13,6 +13,22 @@ const SCREEN_W = 640,
       BLUE = 0xFFFF0000,
       BLACK = 0xFF000000;
 
+const g_assets = [];
+loadAsset(0, 'assets/DwarfPrew.png');
+
+function loadAsset(assetIndex, path) {
+  const img = new Image();
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  img.onload = () => {
+    context.drawImage(img, 0, 0);
+    g_assets[assetIndex] =
+      context.getImageData(0, 0, img.naturalWidth, img.naturalHeight);
+  };
+  img.crossOrigin = "Anonymous";
+  img.src = path;
+}
+
 async function game(context){
   const newDataBuffer = new ArrayBuffer(SCREEN_W * SCREEN_H * 4);
   const newData8 = new Uint8ClampedArray(newDataBuffer);
@@ -56,7 +72,7 @@ function gameLoop(src32){
       drawMenu(),
       drawLine(100, 100, 300, 300),
       //drawLine(600, 10, 550, 320),
-      drawBox(20, 20, 120, 20)
+      //drawBox(20, 20, 120, 20)
     );
     src32[current_pixel] = newPixel;
 
