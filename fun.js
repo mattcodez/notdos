@@ -23,7 +23,11 @@ function loadAsset(assetIndex, path) {
   img.onload = () => {
     context.drawImage(img, 0, 0);
     g_assets[assetIndex] =
-      context.getImageData(0, 0, img.naturalWidth, img.naturalHeight);
+      [
+        context.getImageData(0, 0, img.naturalWidth, img.naturalHeight),
+        img.naturalWidth,
+        img.naturalHeight
+      ];
   };
   img.crossOrigin = "Anonymous";
   img.src = path;
@@ -74,6 +78,7 @@ function gameLoop(src32){
       drawMovingVerticalLine(state.line),
       drawMenu(),
       drawLine(100, 100, 300, 300),
+      drawSprite(g_assets[0], 200, 300),
       //drawLine(600, 10, 550, 320),
       //drawBox(20, 20, 120, 20)
     );
@@ -90,6 +95,17 @@ function gameLoop(src32){
 
 function drawBackground(){
   return RED;
+}
+
+function drawSprite(sprite, x, y){
+  const spriteWidth = sprite[1];
+  const spriteHeight = sprite[2];
+  if (
+    (g_current_x >= x && g_current_x <= (x+spriteWidth)) &&
+    (g_current_y >= y && g_current_y <= (y+spriteHeight))
+  ) {
+    return sprite[0][0][g_current_x - x + g_current_y - y]
+  }
 }
 
 function drawMovingVerticalLine(lineLocation){
