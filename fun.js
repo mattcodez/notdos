@@ -37,11 +37,12 @@ async function game(context){
 
   // game tick
   setInterval(()=>{
-    gameLoop(newData32);
+    stateLoop();
   }, 10);
 
   // render tick
   for await (const frame of getFrame()) {
+    gameLoop(newData32);
     context.putImageData(newImageData, 0, 0);
   }
 }
@@ -56,19 +57,21 @@ function lastValid(){
   return last;
 }
 
-let current_pixel, g_current_x, g_current_y;
-function gameLoop(src32){
+function stateLoop(){
   // move line
   const line = state.line;
   state.line = line > SCREEN_W ? 0 : line + 1;
+}
 
+let current_pixel, g_current_x, g_current_y;
+function gameLoop(src32){
   // loop through every pixel in canvas
   g_current_x = 0;
   g_current_y = 0;
   for (current_pixel = 0; current_pixel < src32.length; current_pixel++){
     let newPixel = lastValid(
       drawBackground(),
-      drawMovingVerticalLine(line),
+      drawMovingVerticalLine(state.line),
       drawMenu(),
       drawLine(100, 100, 300, 300),
       //drawLine(600, 10, 550, 320),
