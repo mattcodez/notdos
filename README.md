@@ -3,6 +3,5 @@ Today, if you want to draw a line, box, text whatever on a screen, there's a fun
 
 
 # TODO
-[ ] Need game render loop to be separate from game state loop. Render loop should just be called with requestAnimationFrame
-[ ] Sprite loader (in progress)
-
+- [x] Need game render loop to be separate from game state loop. Render loop should just be called with requestAnimationFrame
+- [ ] Sprite loader (in progress)
