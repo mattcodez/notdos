@@ -24,13 +24,14 @@ function loadAssets() {
 function getAsset(path) {
   const img = new Image();
   const canvas = document.createElement('canvas');
+  document.body.appendChild(canvas);
   const context = canvas.getContext('2d');
   const prom = new Promise(resolve =>
     img.onload = () => {
       context.drawImage(img, 0, 0);
       resolve(
         [
-          Uint32Array.from(context.getImageData(0, 0, img.naturalWidth, img.naturalHeight).data),
+          new Uint32Array(context.getImageData(0, 0, img.naturalWidth, img.naturalHeight).data.buffer),
           img.naturalWidth,
           img.naturalHeight
         ]
@@ -105,7 +106,7 @@ function gameLoop(src32){
 }
 
 function drawBackground(){
-  return RED;
+  return GREEN;
 }
 
 function drawSprite(sprite, x, y){
@@ -113,7 +114,7 @@ function drawSprite(sprite, x, y){
     (g_current_x >= x && g_current_x <= (x+sprite[1])) &&
     (g_current_y >= y && g_current_y <= (y+sprite[2]))
   ) {
-    return 0xFF000000 | sprite[0][g_current_x - x + g_current_y - y];
+    return sprite[0][g_current_x - x + g_current_y - y];
   }
 }
 
