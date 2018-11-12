@@ -13,24 +13,33 @@ const SCREEN_W = 640,
       BLUE = 0xFFFF0000,
       BLACK = 0xFF000000;
 
-const g_assets = [];
-loadAsset(0, 'assets/DwarfPrew.png');
+let g_assets;
 
-function loadAsset(assetIndex, path) {
+function loadAssets() {
+  return Promise.all([
+    getAsset('assets/DwarfPrew.png')
+  ]);
+}
+
+function getAsset(path) {
   const img = new Image();
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
-  img.onload = () => {
-    context.drawImage(img, 0, 0);
-    g_assets[assetIndex] =
-      [
-        context.getImageData(0, 0, img.naturalWidth, img.naturalHeight),
-        img.naturalWidth,
-        img.naturalHeight
-      ];
-  };
+  const prom = new Promise(resolve =>
+    img.onload = () => {
+      context.drawImage(img, 0, 0);
+      resolve(
+        [
+          Uint32Array.from(context.getImageData(0, 0, img.naturalWidth, img.naturalHeight).data),
+          img.naturalWidth,
+          img.naturalHeight
+        ]
+      );
+    }
+  );
   img.crossOrigin = "Anonymous";
   img.src = path;
+  return prom;
 }
 
 async function game(context){
@@ -38,6 +47,8 @@ async function game(context){
   const newData8 = new Uint8ClampedArray(newDataBuffer);
   const newData32 = new Uint32Array(newDataBuffer);
   const newImageData = new ImageData(newData8, SCREEN_W);
+
+  g_assets = await loadAssets();
 
   // game tick
   setInterval(()=>{
@@ -98,13 +109,11 @@ function drawBackground(){
 }
 
 function drawSprite(sprite, x, y){
-  const spriteWidth = sprite[1];
-  const spriteHeight = sprite[2];
   if (
-    (g_current_x >= x && g_current_x <= (x+spriteWidth)) &&
-    (g_current_y >= y && g_current_y <= (y+spriteHeight))
+    (g_current_x >= x && g_current_x <= (x+sprite[1])) &&
+    (g_current_y >= y && g_current_y <= (y+sprite[2]))
   ) {
-    return sprite[0][0][g_current_x - x + g_current_y - y]
+    return 0xFF000000 | sprite[0][g_current_x - x + g_current_y - y];
   }
 }
 
