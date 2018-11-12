@@ -110,11 +110,12 @@ function drawBackground(){
 }
 
 function drawSprite(sprite, x, y){
+  const [,width, height] = sprite;
   if (
-    (g_current_x >= x && g_current_x <= (x+sprite[1])) &&
-    (g_current_y >= y && g_current_y <= (y+sprite[2]))
+    (g_current_x >= x && g_current_x <= (x+width)) &&
+    (g_current_y >= y && g_current_y <= (y+height))
   ) {
-    return sprite[0][g_current_x - x + g_current_y - y];
+    return sprite[0][g_current_x - x + ((g_current_y - y) * width)];
   }
 }
 
